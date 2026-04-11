@@ -1,2 +1,12 @@
-# ModelScope__ML_Evaluation_and_Failure_Analysis_System
-ModelScope is a machine learning evaluation and failure analysis system that analyzes model predictions, computes performance metrics, and identifies error patterns using Python, SQL, and data visualization.
+# ModelScope
+
+ML Evaluation & Failure Analysis System for analyzing model predictions, detecting failure patterns, and generating insights.
+
+## Tech Stack
+- Python
+- Pandas, NumPy
+- SQL (planned)
+- Matplotlib
+
+## Status
+Project initialization and architecture setup
