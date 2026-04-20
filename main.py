@@ -2,6 +2,7 @@ from src.config import DATA_PATH
 from src.data_loader import load_data
 from src.metrics import accuracy, precision, recall, f1_score
 from src.failure_analysis import get_false_positives, get_false_negatives, summarize_failures
+from src.visualization import plot_confusion_matrix, plot_error_distribution
 
 
 def main():
@@ -16,21 +17,18 @@ def main():
     print(f"Recall   : {recall(y_true, y_pred):.4f}")
     print(f"F1 Score : {f1_score(y_true, y_pred):.4f}")
 
-    # 🔥 Failure Analysis
+    # Failure Analysis
     fp = get_false_positives(df)
     fn = get_false_negatives(df)
-
     summary = summarize_failures(fp, fn)
 
     print("\n=== Failure Analysis ===")
     print(f"False Positives: {summary['false_positives']}")
     print(f"False Negatives: {summary['false_negatives']}")
 
-    print("\nSample False Positives:")
-    print(fp.head())
-
-    print("\nSample False Negatives:")
-    print(fn.head())
+    # 🔥 Visualization
+    plot_confusion_matrix(y_true, y_pred)
+    plot_error_distribution(summary["false_positives"], summary["false_negatives"])
 
 
 if __name__ == "__main__":
