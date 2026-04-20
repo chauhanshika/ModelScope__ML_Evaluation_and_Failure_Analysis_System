@@ -44,4 +44,4 @@ def query_prediction_distribution():
 
     result = cursor.fetchall()
     conn.close()
-    return resultdb.py
+    return result
