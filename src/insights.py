@@ -1,43 +1,46 @@
-from src.config import DATA_PATH
-from src.data_loader import load_data
-from src.metrics import accuracy, precision, recall, f1_score
-from src.failure_analysis import get_false_positives, get_false_negatives, summarize_failures
-from src.visualization import plot_confusion_matrix, plot_error_distribution
-from src.db import create_table, insert_data, query_prediction_distribution
+def generate_insights(metrics: dict, failures: dict) -> str:
+    """
+    Generate human-readable insights from metrics and failure analysis
+    """
 
+    acc = metrics["accuracy"]
+    precision = metrics["precision"]
+    recall = metrics["recall"]
+    f1 = metrics["f1"]
 
-def main():
-    df = load_data(DATA_PATH)
+    fp = failures["false_positives"]
+    fn = failures["false_negatives"]
 
-    # 🔥 Store in DB
-    create_table()
-    insert_data(df)
+    insights = []
 
-    print("\n=== SQL Query Result ===")
-    print(query_prediction_distribution())
+    # Accuracy insight
+    if acc > 0.8:
+        insights.append("Model shows strong overall accuracy.")
+    else:
+        insights.append("Model accuracy is relatively low, indicating room for improvement.")
 
-    y_true = df["actual"].values
-    y_pred = df["predicted"].values
+    # Precision vs Recall
+    if precision > recall:
+        insights.append("Model is conservative in predicting positives (high precision, low recall).")
+    elif recall > precision:
+        insights.append("Model captures positives well but has more false alarms (high recall).")
+    else:
+        insights.append("Model has balanced precision and recall.")
 
-    print("\n=== Model Evaluation Metrics ===")
-    print(f"Accuracy : {accuracy(y_true, y_pred):.4f}")
-    print(f"Precision: {precision(y_true, y_pred):.4f}")
-    print(f"Recall   : {recall(y_true, y_pred):.4f}")
-    print(f"F1 Score : {f1_score(y_true, y_pred):.4f}")
+    # Failure analysis
+    if fn > fp:
+        insights.append("High false negatives — model is missing actual positive cases.")
+    elif fp > fn:
+        insights.append("High false positives — model is over-predicting positives.")
+    else:
+        insights.append("False positives and negatives are balanced.")
 
-    # Failure Analysis
-    fp = get_false_positives(df)
-    fn = get_false_negatives(df)
-    summary = summarize_failures(fp, fn)
+    # F1 Score
+    if f1 < 0.6:
+        insights.append("Low F1 score — poor balance between precision and recall.")
+    elif f1 < 0.8:
+        insights.append("Moderate F1 score — can be improved.")
+    else:
+        insights.append("Strong F1 score — good model balance.")
 
-    print("\n=== Failure Analysis ===")
-    print(f"False Positives: {summary['false_positives']}")
-    print(f"False Negatives: {summary['false_negatives']}")
-
-    # Visualization
-    plot_confusion_matrix(y_true, y_pred)
-    plot_error_distribution(summary["false_positives"], summary["false_negatives"])
-
-
-if __name__ == "__main__":
-    main()
+    return "\n".join(insights)
